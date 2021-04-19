@@ -3,14 +3,11 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-		<title>Title</title>
-
+		<title>SLURM</title>
 		<link rel="stylesheet" href="reveal.js/dist/reset.css">
 		<link rel="stylesheet" href="reveal.js/dist/reveal.css">
 		<link rel="stylesheet" href="reveal.js/dist/theme/night.css" id="theme">
 		<link rel="stylesheet" href="reveal.js/dist/user.css">
-
 		<!-- Theme used for syntax highlighted code -->
 		<link rel="stylesheet" href="reveal.js/plugin/highlight/monokai.css" id="highlight-theme">
 	</head>
@@ -18,12 +15,87 @@
 		<div class="reveal">
 			<div class="slides">
 				<section>
-					<h1>Random Forests</h1>
+					<h1>SLURM</h1>
 					<p>Bastian Schiffthaler</p>
+				</section>
+				<section>
+					<section>
+						<p>What is a high performance compute cluster</p>
+						<ul>
+							<li class="fragment">A collection of computers (nodes)</li>
+							<li class="fragment">Joined by high-speed networking (e.g. InfiniBand)</li>
+							<li class="fragment">Software to distribute work across nodes (SLURM, PBS/Torque, SunGrid, etc..)</li>
+						</ul>
+					</section>
+					<section>
+						<p>What is a high performance compute cluster</p>
+						<img class="stretch" data-src="https://upload.wikimedia.org/wikipedia/commons/d/d3/IBM_Blue_Gene_P_supercomputer.jpg">
+					</section>
+					<section data-background="white">
+						<p>How does the software distribute work?</p>
+						<img class="stretch" data-src="https://hpc.llnl.gov/sites/default/files/workloadMgrWorkflow.png">
+					</section>
+				</section>
+				<section>
+					<p>SLURM commands</p>
+					<ul>
+						<li class="fragment"> <code class="monokai-red">srun&nbsp;&nbsp;&nbsp;</code>: Run a program on the cluster</li>
+						<li class="fragment"> <code class="monokai-red">sbatch&nbsp;</code>: Submit a script to the cluster (Bash, Python, ...)</li>
+						<li class="fragment"> <code class="monokai-red">squeue&nbsp;</code>: Inspect the status of the job queue</li>
+						<li class="fragment"> <code class="monokai-red">scancel</code>: Cancel a job</li>
+					</ul>
+				</section>
+				<section>
+					<p>Commonly used SLURM resources</p>
+					<ul>
+						<li class="fragment"> <code class="monokai-red">-c --cpus-per-task</code>: The number of CPUs this job requires</li>
+						<li class="fragment"> <code class="monokai-red">-G --gpus</code>: The number of GPUs this job requires</li>
+						<li class="fragment"> <code class="monokai-red">--mem</code>: The amount of memory (RAM) per node in Mb</li>
+						<li class="fragment"> <code class="monokai-red">--mem-per-cpu</code>: The amount of memory (RAM) per CPU reserved in Mb</li>
+						<li class="fragment"> <code class="monokai-red">--mem-per-gpu</code>: The amount of memory (RAM) per GPU reserved in Mb</li>
+						<li class="fragment"> <code class="monokai-red">-n --ntasks</code>: The number of tasks this job starts</li>
+						<li class="fragment"> <code class="monokai-red">-t --time</code>: The maximum amount of time this job can run. <code>days-hours:minutes:seconds</code></li>
+					</ul>
+				</section>
+				<section>
+					<section>
+						<p>SLURM constraints are best given in the script as special comments</p>
+						<pre><code data-trim data-noescape class="bash">
+							#!/usr/bin/env bash
+							#SBATCH --cpus-per-task 8
+							#SBATCH --mem 16G
+							#SBATCH --time 00-01:00:00
+							#SBATCH --ntasks 1
+							set -euxo pipefail
+							set -o errtrace
+							# code...
+						</code></pre>
+					</section>
+					<section>
+						<p>You can override them in the command line</p>
+						<pre><code data-trim data-noescape class="bash">
+							# This job will require less time
+							sbatch -t 00-30:00:00 my_script.sh
+						</code></pre>
+					</section>
+				</section>
+				<section>
+					<section>
+						<p>SLURM output</p>
+						<ul>
+							<li class="fragment">By default, both <code>stdout</code> and <code>stderr</code> are written to a file call "slurm-xxx.out", where "xxx" is the job's id.</li>
+							<li class="fragment">The locations can be changed with <code class="monokai-red">-o --output</code> and <code class="monokai-red">-e --error</code> flags</li>
+						</ul>
+					</section>
+					<section>
+						<p>Example</p>
+						<pre><code data-trim data-noescape class="bash">
+							sbatch -o my_stdout.txt -e my_stderr.txt my_script.sh
+						</code></pre>
+					</section>
 				</section>
 			</div>
 		</div>
-
 		<script src="reveal.js/dist/reveal.js"></script>
 		<script src="reveal.js/plugin/notes/notes.js"></script>
 		<script src="reveal.js/plugin/markdown/markdown.js"></script>
@@ -35,9 +107,8 @@
 			// - https://revealjs.com/config/
 			Reveal.initialize({
 				hash: true,
-				width: 1600,
-				height: 1280,
-
+				width: 1280,
+				height: 720,
 				// Learn about plugins: https://revealjs.com/plugins/
 				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, RevealMath ]
 			});
